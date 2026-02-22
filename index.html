@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vibrant AI Chat</title>
+    <title>Mine Apex BOT</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -88,7 +88,7 @@
             <div class="absolute inset-0 rounded-full border-t-4 border-violet-500 animate-spin"></div>
             <div class="absolute inset-2 rounded-full border-r-4 border-fuchsia-500 animate-spin" style="animation-direction: reverse;"></div>
         </div>
-        <div class="text-xl font-semibold mt-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-fuchsia-500">Waking up AI...</div>
+        <div class="text-xl font-semibold mt-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-fuchsia-500">Loading Mine Apex BOT...</div>
     </div>
 
     <div class="flex min-h-[100dvh] w-full relative">
@@ -96,16 +96,24 @@
         <div id="sidebar-overlay" class="fixed inset-0 bg-indigo-900/40 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity" onclick="toggleSidebar()"></div>
 
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 lg:flex-shrink-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-[100dvh] lg:flex flex-col transition-transform duration-300 ease-in-out border-r border-white/20 dark:border-gray-700/50 shadow-2xl lg:shadow-none">
+            
+            <div class="px-5 pt-6 pb-2 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl overflow-hidden shadow-lg shadow-violet-500/30 flex-shrink-0 bg-gray-900 flex items-center justify-center">
+                    <img src="image_06067b.jpg" alt="Mine Apex Logo" class="w-full h-full object-cover">
+                </div>
+                <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">Mine Apex</h1>
+            </div>
+
             <div class="p-4 flex justify-between items-center">
                 <button onclick="createNewChat()" class="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-sm font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
-                    <i class="fas fa-sparkles"></i> New Chat
+                    <i class="fas fa-plus"></i> New Chat
                 </button>
                 <button onclick="toggleSidebar()" class="lg:hidden ml-3 p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div class="px-5 pb-2 pt-2 text-xs font-bold text-violet-500 dark:text-fuchsia-400 uppercase tracking-widest">Your Conversations</div>
+            <div class="px-5 pb-2 pt-2 text-xs font-bold text-violet-500 dark:text-fuchsia-400 uppercase tracking-widest">Conversations</div>
             
             <div id="chat-list" class="flex-1 overflow-y-auto px-3 space-y-2 mt-2">
                 </div>
@@ -142,7 +150,7 @@
             <div id="messages-container" class="w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col gap-6">
                 </div>
 
-            <div class="w-full h-[240px] flex-shrink-0"></div>
+            <div id="scroll-anchor" class="w-full h-[180px] flex-shrink-0"></div>
 
             <div class="fixed bottom-0 left-0 lg:left-72 right-0 pb-6 pt-10 px-4 z-20 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80 pointer-events-none">
                 <div class="max-w-4xl mx-auto relative pointer-events-auto">
@@ -154,7 +162,7 @@
                             id="user-input" 
                             rows="1" 
                             class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 text-base max-h-32 focus:outline-none placeholder-gray-400 dark:placeholder-gray-500" 
-                            placeholder="Type a message, ask a question, or spark an idea..."
+                            placeholder="Ask Mine Apex BOT..."
                             oninput="autoResize(this)"
                             onkeydown="handleEnter(event)"></textarea>
                         <button id="send-btn" onclick="sendMessage()" class="p-3 mb-1 rounded-xl bg-violet-600 hover:bg-fuchsia-600 text-white disabled:opacity-40 disabled:hover:bg-violet-600 transition-all duration-300 shadow-md" disabled>
@@ -162,7 +170,7 @@
                         </button>
                     </div>
                     <div class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3 font-medium">
-                        AI makes mistakes. Double-check the facts.
+                        Mine Apex BOT can make mistakes. Verify important information.
                     </div>
                 </div>
             </div>
@@ -336,12 +344,13 @@
             }
         }
 
+        // SCROLL FIX: Force browser to scroll to the anchor element at the very bottom
         function scrollToBottom(smooth = true) {
             setTimeout(() => {
-                window.scrollTo({
-                    top: document.documentElement.scrollHeight,
-                    behavior: smooth ? 'smooth' : 'auto'
-                });
+                const anchor = document.getElementById('scroll-anchor');
+                if (anchor) {
+                    anchor.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'end' });
+                }
             }, 50);
         }
 
@@ -429,7 +438,7 @@
 
             let exportData = `# ${chat.title}\n\n`;
             chat.messages.forEach(msg => {
-                const roleName = msg.role === 'user' ? '👤 You' : '🤖 AI Assistant';
+                const roleName = msg.role === 'user' ? '👤 You' : '🤖 Mine Apex BOT';
                 exportData += `### ${roleName}\n${msg.content}\n\n---\n\n`;
             });
 
@@ -482,12 +491,12 @@
             
             if (!chat || chat.messages.length === 0) {
                 container.innerHTML = `
-                    <div class="flex-1 flex flex-col items-center justify-center text-center mt-32 msg-animate">
-                        <div class="w-24 h-24 mb-6 rounded-3xl bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-xl shadow-fuchsia-500/20 transform rotate-12 hover:rotate-0 transition-transform duration-500">
-                            <i class="fas fa-robot text-4xl text-white"></i>
+                    <div class="flex-1 flex flex-col items-center justify-center text-center mt-20 msg-animate">
+                        <div class="w-32 h-32 mb-6 rounded-3xl overflow-hidden shadow-2xl shadow-violet-500/30 transform hover:scale-105 transition-transform duration-500 bg-gray-900 flex items-center justify-center">
+                            <img src="image_06067b.jpg" alt="Mine Apex Logo" class="w-full h-full object-cover">
                         </div>
-                        <h2 class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">How can I help you today?</h2>
-                        <p class="text-gray-500 dark:text-gray-400 max-w-md">Ask a question, brainstorm ideas, or generate code. I'm ready when you are.</p>
+                        <h2 class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">Mine Apex BOT</h2>
+                        <p class="text-gray-500 dark:text-gray-400 max-w-md">How can I help you today? Ask a question, brainstorm ideas, or generate code.</p>
                     </div>
                 `;
                 return;
@@ -500,7 +509,9 @@
         function appendMessageBubble(role, content, id = null, animate = true) {
             const container = document.getElementById('messages-container');
             
-            if (container.querySelector('.fa-robot')) container.innerHTML = '';
+            if (container.querySelector('.fa-mountain') || container.querySelector('img[alt="Mine Apex Logo"]')) {
+                container.innerHTML = '';
+            }
 
             const wrapper = document.createElement('div');
             wrapper.className = `flex w-full ${role === 'user' ? 'justify-end' : 'justify-start'} ${animate ? 'msg-animate' : ''}`;
@@ -510,11 +521,9 @@
             bubble.className = `max-w-[100%] md:max-w-[85%] rounded-3xl px-6 py-4 text-[15px] leading-relaxed markdown-body overflow-hidden shadow-sm `;
             
             if (role === 'user') {
-                // Vibrant Gradient for User
                 bubble.className += 'bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white rounded-tr-sm shadow-md shadow-violet-500/20';
                 bubble.textContent = content; 
             } else {
-                // Frosted Glass for AI
                 bubble.className += 'bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-white/40 dark:border-gray-700/50 text-gray-800 dark:text-gray-200 rounded-tl-sm';
                 if (content) bubble.innerHTML = marked.parse(content);
             }
@@ -553,7 +562,6 @@
             const msgId = generateId();
             const aiBubbleWrapper = appendMessageBubble('assistant', '', msgId);
             
-            // Adding Fancy Typing Dots
             aiBubbleWrapper.innerHTML = `<div class="typing-dots flex items-center h-6"><span></span><span></span><span></span></div>`;
 
             const payloadMessages = [];
@@ -567,7 +575,7 @@
                         'Authorization': `Bearer ${state.settings.apiKey}`,
                         'Content-Type': 'application/json',
                         'HTTP-Referer': window.location.href, 
-                        'X-Title': 'Vibrant AI Chat'
+                        'X-Title': 'Mine Apex BOT'
                     },
                     body: JSON.stringify({
                         model: state.settings.model,
@@ -601,6 +609,7 @@
                                 aiText += content;
                                 aiBubbleWrapper.innerHTML = marked.parse(aiText);
                                 
+                                // NEW SCROLL FIX logic updated
                                 const scrollDistToBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
                                 if (scrollDistToBottom < 300) scrollToBottom(false); 
                             } catch (e) { /* Ignore partial JSON chunks */ }
