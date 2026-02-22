@@ -98,8 +98,9 @@
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 lg:flex-shrink-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-[100dvh] lg:flex flex-col transition-transform duration-300 ease-in-out border-r border-white/20 dark:border-gray-700/50 shadow-2xl lg:shadow-none">
             
             <div class="px-5 pt-6 pb-2 flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl overflow-hidden shadow-lg shadow-violet-500/30 flex-shrink-0 bg-gray-900 flex items-center justify-center">
-                    <img src="Gemini_Generated_Image_cnu1mjcnu1mjcnu1.png" alt="Mine Apex Logo" class="w-full h-full object-cover">
+                <div class="relative w-12 h-12 rounded-xl overflow-hidden shadow-lg shadow-violet-500/30 flex-shrink-0 bg-gray-900 flex items-center justify-center">
+                    <i class="fas fa-cube text-2xl text-violet-400 absolute z-0"></i>
+                    <img src="Gemini_Generated_Image_cnu1mjcnu1mjcnu1.png" alt="Mine Apex Logo" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">
                 </div>
                 <h1 class="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">Mine Apex</h1>
             </div>
@@ -344,7 +345,7 @@
             }
         }
 
-        // SCROLL FIX: Force browser to scroll to the anchor element at the very bottom
+        // SCROLL FIX
         function scrollToBottom(smooth = true) {
             setTimeout(() => {
                 const anchor = document.getElementById('scroll-anchor');
@@ -492,8 +493,9 @@
             if (!chat || chat.messages.length === 0) {
                 container.innerHTML = `
                     <div class="flex-1 flex flex-col items-center justify-center text-center mt-20 msg-animate">
-                        <div class="w-32 h-32 mb-6 rounded-3xl overflow-hidden shadow-2xl shadow-violet-500/30 transform hover:scale-105 transition-transform duration-500 bg-gray-900 flex items-center justify-center">
-                            <img src="Gemini_Generated_Image_cnu1mjcnu1mjcnu1.png" alt="Mine Apex Logo" class="w-full h-full object-cover">
+                        <div class="relative w-32 h-32 mb-6 rounded-3xl overflow-hidden shadow-2xl shadow-violet-500/30 transform hover:scale-105 transition-transform duration-500 bg-gray-900 flex items-center justify-center">
+                            <i class="fas fa-cube text-5xl text-violet-400 absolute z-0"></i>
+                            <img src="Gemini_Generated_Image_cnu1mjcnu1mjcnu1.png" alt="Mine Apex Logo" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">
                         </div>
                         <h2 class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">Mine Apex BOT</h2>
                         <p class="text-gray-500 dark:text-gray-400 max-w-md">How can I help you today? Ask a question, brainstorm ideas, or generate code.</p>
@@ -509,7 +511,7 @@
         function appendMessageBubble(role, content, id = null, animate = true) {
             const container = document.getElementById('messages-container');
             
-            if (container.querySelector('.fa-mountain') || container.querySelector('img[alt="Mine Apex Logo"]')) {
+            if (container.querySelector('.fa-cube') || container.querySelector('img[alt="Mine Apex Logo"]')) {
                 container.innerHTML = '';
             }
 
@@ -609,7 +611,6 @@
                                 aiText += content;
                                 aiBubbleWrapper.innerHTML = marked.parse(aiText);
                                 
-                                // NEW SCROLL FIX logic updated
                                 const scrollDistToBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
                                 if (scrollDistToBottom < 300) scrollToBottom(false); 
                             } catch (e) { /* Ignore partial JSON chunks */ }
