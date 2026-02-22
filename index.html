@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Universal AI Chat</title>
+    <title>Vibrant AI Chat</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,15 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        gemini: {
-                            light: '#ffffff',
-                            dark: '#131314',
-                            sidebarLight: '#f0f4f9',
-                            sidebarDark: '#1e1f20',
-                            borderLight: '#e3e3e3',
-                            borderDark: '#444746',
-                            inputDark: '#1e1f20'
-                        }
+                        glassLight: 'rgba(255, 255, 255, 0.7)',
+                        glassDark: 'rgba(30, 30, 35, 0.7)',
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 1.5s infinite',
                     }
                 }
             }
@@ -32,151 +28,174 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
         
         /* Markdown Styles */
         .markdown-body p { margin-bottom: 0.75rem; line-height: 1.6; }
         .markdown-body p:last-child { margin-bottom: 0; }
-        .markdown-body code { background-color: rgba(128, 128, 128, 0.2); padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
-        
+        .markdown-body code { background-color: rgba(128, 128, 128, 0.15); padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; color: #d946ef; }
+        .dark .markdown-body code { color: #f472b6; }
         .markdown-body pre { background-color: transparent; color: #d4d4d4; padding: 1rem; overflow-x: auto; margin: 0; }
         .markdown-body pre code { background-color: transparent; padding: 0; color: inherit; font-size: 0.9em; }
-        
         .markdown-body ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
         .markdown-body ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
         .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.75rem; }
-        .markdown-body h1 { font-size: 1.5rem; }
-        .markdown-body h2 { font-size: 1.25rem; }
         
         /* Scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        .dark ::-webkit-scrollbar-thumb { background: #4f46e5; }
 
         /* Loader */
-        #loading { transition: opacity 0.3s ease; }
+        #loading { transition: opacity 0.4s ease; }
         
         /* Input Auto-resize */
         textarea { resize: none; overflow-y: hidden; }
         
-        /* Typing animation dot */
-        .typing-indicator::after {
-            content: '▋';
-            animation: blink 1s step-start infinite;
+        /* Awesome Animations */
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes blink { 50% { opacity: 0; } }
+        .msg-animate {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Typing Dots */
+        .typing-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #8b5cf6;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
     </style>
 </head>
-<body class="bg-white dark:bg-gemini-dark text-gray-800 dark:text-gray-200 m-0 p-0 transition-colors duration-200">
+<body class="bg-gradient-to-br from-indigo-50 via-white to-pink-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950 text-gray-800 dark:text-gray-200 m-0 p-0 transition-colors duration-500 min-h-[100dvh]">
 
-    <div id="loading" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-gemini-dark">
-        <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-4"></i>
-        <div class="text-xl font-semibold">Loading App...</div>
+    <div id="loading" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-gray-900">
+        <div class="relative w-16 h-16">
+            <div class="absolute inset-0 rounded-full border-t-4 border-violet-500 animate-spin"></div>
+            <div class="absolute inset-2 rounded-full border-r-4 border-fuchsia-500 animate-spin" style="animation-direction: reverse;"></div>
+        </div>
+        <div class="text-xl font-semibold mt-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-fuchsia-500">Waking up AI...</div>
     </div>
 
     <div class="flex min-h-[100dvh] w-full relative">
 
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity" onclick="toggleSidebar()"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-indigo-900/40 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity" onclick="toggleSidebar()"></div>
 
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 lg:flex-shrink-0 bg-gemini-sidebarLight dark:bg-gemini-sidebarDark transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-[100dvh] lg:flex flex-col transition-transform duration-300 ease-in-out border-r border-gemini-borderLight dark:border-gemini-borderDark">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 lg:flex-shrink-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-[100dvh] lg:flex flex-col transition-transform duration-300 ease-in-out border-r border-white/20 dark:border-gray-700/50 shadow-2xl lg:shadow-none">
             <div class="p-4 flex justify-between items-center">
-                <button onclick="createNewChat()" class="flex-1 bg-white dark:bg-gemini-dark border border-gemini-borderLight dark:border-gemini-borderDark hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium py-2.5 px-4 rounded-full flex items-center justify-center gap-2 shadow-sm transition-colors">
-                    <i class="fas fa-plus"></i> New Chat
+                <button onclick="createNewChat()" class="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-sm font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fas fa-sparkles"></i> New Chat
                 </button>
-                <button onclick="toggleSidebar()" class="lg:hidden ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <button onclick="toggleSidebar()" class="lg:hidden ml-3 p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div class="px-4 pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent</div>
+            <div class="px-5 pb-2 pt-2 text-xs font-bold text-violet-500 dark:text-fuchsia-400 uppercase tracking-widest">Your Conversations</div>
             
-            <div id="chat-list" class="flex-1 overflow-y-auto px-2 space-y-1">
+            <div id="chat-list" class="flex-1 overflow-y-auto px-3 space-y-2 mt-2">
                 </div>
 
-            <div class="p-4 border-t border-gemini-borderLight dark:border-gemini-borderDark space-y-2">
-                <button onclick="toggleTheme()" class="w-full text-left px-4 py-2.5 text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors">
-                    <i id="theme-icon" class="fas fa-moon w-5 text-center"></i>
+            <div class="p-4 space-y-2 border-t border-gray-200/50 dark:border-gray-700/50">
+                <button onclick="toggleTheme()" class="w-full text-left px-4 py-3 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 flex items-center gap-3 transition-all duration-200 font-medium">
+                    <div class="w-8 h-8 rounded-full bg-violet-100 dark:bg-indigo-900/50 flex items-center justify-center text-violet-600 dark:text-violet-400"><i id="theme-icon" class="fas fa-moon"></i></div>
                     <span id="theme-text">Dark Mode</span>
                 </button>
-                <button onclick="openSettings()" class="w-full text-left px-4 py-2.5 text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors">
-                    <i class="fas fa-cog w-5 text-center"></i> Settings
+                <button onclick="openSettings()" class="w-full text-left px-4 py-3 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 flex items-center gap-3 transition-all duration-200 font-medium">
+                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-400"><i class="fas fa-cog"></i></div>
+                    Settings
                 </button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 relative">
             
-            <header class="sticky top-0 z-10 p-4 flex items-center justify-between bg-white/90 dark:bg-gemini-dark/90 backdrop-blur-md border-b border-transparent">
+            <header class="sticky top-0 z-10 p-4 flex items-center justify-between bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-b border-white/20 dark:border-gray-800/50">
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden focus:outline-none">
+                    <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 lg:hidden focus:outline-none transition-colors">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
-                    <h1 id="current-chat-title" class="font-semibold text-lg truncate">New Chat</h1>
+                    <h1 id="current-chat-title" class="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 truncate max-w-[200px] md:max-w-md">New Chat</h1>
                 </div>
                 
                 <div class="flex items-center">
-                    <button onclick="exportChat()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors" title="Export Chat to Markdown">
+                    <button onclick="exportChat()" class="p-2.5 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-700 text-violet-600 dark:text-violet-400 shadow-sm transition-all hover:scale-105" title="Export Chat">
                         <i class="fas fa-download"></i>
                     </button>
                 </div>
             </header>
 
-            <div id="messages-container" class="w-full max-w-3xl mx-auto p-4 md:p-6 flex flex-col gap-6">
+            <div id="messages-container" class="w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col gap-6">
                 </div>
 
-            <div class="w-full h-[220px] flex-shrink-0"></div>
+            <div class="w-full h-[240px] flex-shrink-0"></div>
 
-            <div class="fixed bottom-0 left-0 lg:left-72 right-0 bg-white dark:bg-gemini-dark pb-6 pt-4 px-4 z-20">
-                <div class="max-w-3xl mx-auto relative bg-gray-50 dark:bg-gemini-inputDark border border-gemini-borderLight dark:border-gemini-borderDark rounded-3xl shadow-sm focus-within:ring-1 focus-within:ring-gray-300 dark:focus-within:ring-gray-600 transition-shadow flex items-end px-4 py-2 gap-2">
-                    <button class="p-3 mb-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <textarea 
-                        id="user-input" 
-                        rows="1" 
-                        class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 text-base max-h-32 focus:outline-none placeholder-gray-500" 
-                        placeholder="Ask Gemini..."
-                        oninput="autoResize(this)"
-                        onkeydown="handleEnter(event)"></textarea>
-                    <button id="send-btn" onclick="sendMessage()" class="p-3 mb-1 rounded-full text-blue-500 hover:bg-blue-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="text-center text-xs text-gray-500 mt-3 font-medium">
-                    AI can make mistakes. Verify important information.
+            <div class="fixed bottom-0 left-0 lg:left-72 right-0 pb-6 pt-10 px-4 z-20 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80 pointer-events-none">
+                <div class="max-w-4xl mx-auto relative pointer-events-auto">
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-2xl border border-white/40 dark:border-gray-700/50 rounded-2xl shadow-2xl focus-within:ring-2 focus-within:ring-violet-400/50 transition-all flex items-end px-3 py-2 gap-2 transform hover:-translate-y-1 duration-300">
+                        <button class="p-3 mb-1 rounded-xl text-violet-500 hover:bg-violet-100 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <textarea 
+                            id="user-input" 
+                            rows="1" 
+                            class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 text-base max-h-32 focus:outline-none placeholder-gray-400 dark:placeholder-gray-500" 
+                            placeholder="Type a message, ask a question, or spark an idea..."
+                            oninput="autoResize(this)"
+                            onkeydown="handleEnter(event)"></textarea>
+                        <button id="send-btn" onclick="sendMessage()" class="p-3 mb-1 rounded-xl bg-violet-600 hover:bg-fuchsia-600 text-white disabled:opacity-40 disabled:hover:bg-violet-600 transition-all duration-300 shadow-md" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3 font-medium">
+                        AI makes mistakes. Double-check the facts.
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="settings-modal" class="fixed inset-0 z-[100] bg-black/50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity">
-        <div class="bg-white dark:bg-gemini-sidebarDark rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-200 p-6 flex flex-col gap-4">
+    <div id="settings-modal" class="fixed inset-0 z-[100] bg-indigo-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/20 dark:border-gray-700 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300 p-8 flex flex-col gap-5">
             <div class="flex justify-between items-center mb-2">
-                <h2 class="text-xl font-bold">Settings</h2>
-                <button onclick="closeSettings()" class="text-gray-500 hover:text-gray-800 dark:hover:text-white"><i class="fas fa-times text-lg"></i></button>
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">Preferences</h2>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-red-500 transition-colors p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1">OpenRouter API Key</label>
-                    <input type="password" id="api-key-input" class="w-full p-2.5 rounded-lg border border-gemini-borderLight dark:border-gemini-borderDark bg-transparent focus:outline-none focus:border-blue-500" placeholder="sk-or-v1-...">
+                    <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">OpenRouter API Key</label>
+                    <input type="password" id="api-key-input" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-shadow" placeholder="sk-or-v1-...">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Model ID</label>
-                    <input type="text" id="model-input" class="w-full p-2.5 rounded-lg border border-gemini-borderLight dark:border-gemini-borderDark bg-transparent focus:outline-none focus:border-blue-500" placeholder="deepseek/deepseek-r1:free">
+                    <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Model ID</label>
+                    <input type="text" id="model-input" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-shadow" placeholder="deepseek/deepseek-r1:free">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">System Prompt</label>
-                    <textarea id="system-prompt-input" rows="3" class="w-full p-2.5 rounded-lg border border-gemini-borderLight dark:border-gemini-borderDark bg-transparent focus:outline-none focus:border-blue-500" placeholder="You are a helpful assistant..."></textarea>
+                    <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">System Prompt</label>
+                    <textarea id="system-prompt-input" rows="3" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-shadow" placeholder="You are a helpful assistant..."></textarea>
                 </div>
             </div>
 
-            <div class="mt-4 flex justify-end gap-2">
-                <button onclick="closeSettings()" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-800">Cancel</button>
-                <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">Save Changes</button>
+            <div class="mt-4 flex justify-end gap-3">
+                <button onclick="closeSettings()" class="px-5 py-2.5 rounded-xl font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Cancel</button>
+                <button onclick="saveSettings()" class="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">Save Changes</button>
             </div>
         </div>
     </div>
@@ -186,10 +205,10 @@
         renderer.code = function(code, language) {
             const validLang = language || 'plaintext';
             return `
-                <div class="code-block-wrapper relative group my-4 rounded-lg bg-[#1e1e1e] border border-gray-700 overflow-hidden">
-                    <div class="flex items-center justify-between px-4 py-1.5 bg-[#2d2d2d] border-b border-gray-700">
-                        <span class="text-xs text-gray-400 font-mono">${validLang}</span>
-                        <button onclick="copyCodeBlock(this)" class="text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs py-1 px-2 rounded">
+                <div class="code-block-wrapper relative group my-5 rounded-xl bg-gray-900 shadow-xl overflow-hidden border border-gray-800">
+                    <div class="flex items-center justify-between px-4 py-2 bg-gray-950 border-b border-gray-800/50">
+                        <span class="text-xs text-violet-400 font-mono font-bold tracking-wider uppercase">${validLang}</span>
+                        <button onclick="copyCodeBlock(this)" class="text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs py-1 px-3 rounded-lg bg-gray-800 hover:bg-gray-700">
                             <i class="fas fa-copy"></i> <span>Copy</span>
                         </button>
                     </div>
@@ -210,11 +229,8 @@
                 setTimeout(() => {
                     button.innerHTML = originalHTML;
                 }, 2000);
-            }).catch(err => {
-                console.error("Failed to copy code: ", err);
-            });
+            }).catch(err => console.error("Failed to copy code: ", err));
         }
-
 
         let state = {
             settings: {
@@ -245,7 +261,7 @@
 
             const loader = document.getElementById('loading');
             loader.style.opacity = '0';
-            setTimeout(() => { loader.style.display = 'none'; }, 300);
+            setTimeout(() => { loader.style.display = 'none'; }, 400);
 
             document.getElementById('user-input').addEventListener('input', function() {
                 document.getElementById('send-btn').disabled = this.value.trim().length === 0;
@@ -261,17 +277,12 @@
                     state.chats = parsed.chats || [];
                     state.currentChatId = parsed.currentChatId;
                 }
-            } catch (e) {
-                console.error("Failed to load state", e);
-            }
+            } catch (e) { console.error("Failed to load state", e); }
         }
 
         function saveState() {
-            try {
-                localStorage.setItem('universalAiChatState', JSON.stringify(state));
-            } catch (e) {
-                console.error("Failed to save state", e);
-            }
+            try { localStorage.setItem('universalAiChatState', JSON.stringify(state)); } 
+            catch (e) { console.error("Failed to save state", e); }
         }
 
         function toggleSidebar() {
@@ -302,11 +313,11 @@
 
             if (state.settings.theme === 'dark') {
                 html.classList.add('dark');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeIcon.className = 'fas fa-sun';
                 themeText.textContent = 'Light Mode';
             } else {
                 html.classList.remove('dark');
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                themeIcon.className = 'fas fa-moon';
                 themeText.textContent = 'Dark Mode';
             }
         }
@@ -325,7 +336,6 @@
             }
         }
 
-        // Updated scrollToBottom for perfect bottom scrolling
         function scrollToBottom(smooth = true) {
             setTimeout(() => {
                 window.scrollTo({
@@ -356,9 +366,7 @@
             
             modal.classList.add('opacity-0');
             modalInner.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 200);
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
         function saveSettings() {
@@ -375,17 +383,12 @@
 
         function createNewChat() {
             if (isStreaming) return;
-            const newChat = {
-                id: generateId(),
-                title: 'New Chat',
-                messages: []
-            };
+            const newChat = { id: generateId(), title: 'New Conversation', messages: [] };
             state.chats.unshift(newChat);
             state.currentChatId = newChat.id;
             saveState();
             renderSidebar();
             renderMessages();
-            
             if(window.innerWidth < 1024) toggleSidebar();
         }
 
@@ -400,57 +403,42 @@
 
         function deleteChat(e, id) {
             e.stopPropagation();
-            if (isStreaming || !confirm("Delete this chat?")) return;
+            if (isStreaming || !confirm("Delete this conversation?")) return;
             
             state.chats = state.chats.filter(c => c.id !== id);
             if (state.currentChatId === id) {
                 state.currentChatId = state.chats.length > 0 ? state.chats[0].id : null;
             }
-            if (state.chats.length === 0) {
-                createNewChat();
-            } else {
-                saveState();
-                renderSidebar();
-                renderMessages();
-            }
+            if (state.chats.length === 0) createNewChat();
+            else { saveState(); renderSidebar(); renderMessages(); }
         }
 
         function renameChat(e, id) {
             e.stopPropagation();
             const chat = state.chats.find(c => c.id === id);
-            const newTitle = prompt("Enter new title:", chat.title);
+            const newTitle = prompt("Name this conversation:", chat.title);
             if (newTitle && newTitle.trim()) {
                 chat.title = newTitle.trim();
-                saveState();
-                renderSidebar();
-                renderTitle();
+                saveState(); renderSidebar(); renderTitle();
             }
         }
 
         function exportChat() {
             const chat = state.chats.find(c => c.id === state.currentChatId);
-            if (!chat || chat.messages.length === 0) {
-                alert("This chat is empty.");
-                return;
-            }
+            if (!chat || chat.messages.length === 0) { alert("This chat is empty."); return; }
 
             let exportData = `# ${chat.title}\n\n`;
             chat.messages.forEach(msg => {
-                const roleName = msg.role === 'user' ? '👤 User' : '🤖 AI';
+                const roleName = msg.role === 'user' ? '👤 You' : '🤖 AI Assistant';
                 exportData += `### ${roleName}\n${msg.content}\n\n---\n\n`;
             });
 
             const blob = new Blob([exportData], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
             a.download = `${chat.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-            
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
         function renderSidebar() {
@@ -459,20 +447,22 @@
             
             state.chats.forEach(chat => {
                 const isActive = chat.id === state.currentChatId;
-                const activeClass = isActive ? 'bg-blue-50 dark:bg-gray-800 text-blue-600 dark:text-blue-400 font-medium' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300';
+                const activeClass = isActive 
+                    ? 'bg-violet-100 dark:bg-indigo-900/50 text-violet-700 dark:text-violet-300 shadow-sm border border-violet-200 dark:border-indigo-800' 
+                    : 'hover:bg-gray-100/80 dark:hover:bg-gray-800/80 text-gray-700 dark:text-gray-300 border border-transparent';
                 
                 const item = document.createElement('div');
-                item.className = `group flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${activeClass}`;
+                item.className = `group flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 font-medium ${activeClass}`;
                 item.onclick = () => selectChat(chat.id);
                 
                 item.innerHTML = `
                     <div class="flex items-center gap-3 overflow-hidden">
-                        <i class="far fa-message text-sm opacity-70"></i>
+                        <i class="far fa-message opacity-70 ${isActive ? 'text-fuchsia-500' : ''}"></i>
                         <span class="truncate text-sm">${escapeHTML(chat.title)}</span>
                     </div>
                     <div class="hidden group-hover:flex items-center gap-2 pl-2">
-                        <button onclick="renameChat(event, '${chat.id}')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" title="Rename"><i class="fas fa-pencil-alt text-xs"></i></button>
-                        <button onclick="deleteChat(event, '${chat.id}')" class="text-gray-400 hover:text-red-500" title="Delete"><i class="fas fa-trash text-xs"></i></button>
+                        <button onclick="renameChat(event, '${chat.id}')" class="text-gray-400 hover:text-violet-500 transition-colors" title="Rename"><i class="fas fa-pencil-alt text-xs"></i></button>
+                        <button onclick="deleteChat(event, '${chat.id}')" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete"><i class="fas fa-trash text-xs"></i></button>
                     </div>
                 `;
                 list.appendChild(item);
@@ -492,40 +482,41 @@
             
             if (!chat || chat.messages.length === 0) {
                 container.innerHTML = `
-                    <div class="flex-1 flex flex-col items-center justify-center text-center opacity-50 mt-20">
-                        <i class="fas fa-sparkles text-4xl mb-4"></i>
-                        <h2 class="text-2xl font-semibold mb-2">How can I help you today?</h2>
+                    <div class="flex-1 flex flex-col items-center justify-center text-center mt-32 msg-animate">
+                        <div class="w-24 h-24 mb-6 rounded-3xl bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-xl shadow-fuchsia-500/20 transform rotate-12 hover:rotate-0 transition-transform duration-500">
+                            <i class="fas fa-robot text-4xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600">How can I help you today?</h2>
+                        <p class="text-gray-500 dark:text-gray-400 max-w-md">Ask a question, brainstorm ideas, or generate code. I'm ready when you are.</p>
                     </div>
                 `;
                 return;
             }
 
-            chat.messages.forEach(msg => appendMessageBubble(msg.role, msg.content));
+            chat.messages.forEach(msg => appendMessageBubble(msg.role, msg.content, null, false));
             scrollToBottom(true);
         }
 
-        function appendMessageBubble(role, content, id = null) {
+        function appendMessageBubble(role, content, id = null, animate = true) {
             const container = document.getElementById('messages-container');
             
-            if (container.querySelector('.fa-sparkles')) {
-                container.innerHTML = '';
-            }
+            if (container.querySelector('.fa-robot')) container.innerHTML = '';
 
             const wrapper = document.createElement('div');
-            wrapper.className = `flex w-full ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            wrapper.className = `flex w-full ${role === 'user' ? 'justify-end' : 'justify-start'} ${animate ? 'msg-animate' : ''}`;
             if (id) wrapper.id = `msg-${id}`;
 
             const bubble = document.createElement('div');
-            bubble.className = `max-w-[100%] md:max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm text-[15px] leading-relaxed markdown-body overflow-hidden `;
+            bubble.className = `max-w-[100%] md:max-w-[85%] rounded-3xl px-6 py-4 text-[15px] leading-relaxed markdown-body overflow-hidden shadow-sm `;
             
             if (role === 'user') {
-                bubble.className += 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-br-sm';
+                // Vibrant Gradient for User
+                bubble.className += 'bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white rounded-tr-sm shadow-md shadow-violet-500/20';
                 bubble.textContent = content; 
             } else {
-                bubble.className += 'bg-transparent text-gray-900 dark:text-gray-100';
-                if (content) {
-                    bubble.innerHTML = marked.parse(content);
-                }
+                // Frosted Glass for AI
+                bubble.className += 'bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-white/40 dark:border-gray-700/50 text-gray-800 dark:text-gray-200 rounded-tl-sm';
+                if (content) bubble.innerHTML = marked.parse(content);
             }
 
             wrapper.appendChild(bubble);
@@ -540,8 +531,7 @@
 
             if (!state.settings.apiKey) {
                 alert("Please set your OpenRouter API Key in Settings first.");
-                openSettings();
-                return;
+                openSettings(); return;
             }
 
             inputEl.value = '';
@@ -549,7 +539,6 @@
             document.getElementById('send-btn').disabled = true;
             
             const chat = state.chats.find(c => c.id === state.currentChatId);
-            
             if (chat.messages.length === 0) {
                 chat.title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
                 renderSidebar();
@@ -563,12 +552,12 @@
             isStreaming = true;
             const msgId = generateId();
             const aiBubbleWrapper = appendMessageBubble('assistant', '', msgId);
-            aiBubbleWrapper.classList.add('typing-indicator');
+            
+            // Adding Fancy Typing Dots
+            aiBubbleWrapper.innerHTML = `<div class="typing-dots flex items-center h-6"><span></span><span></span><span></span></div>`;
 
             const payloadMessages = [];
-            if (state.settings.systemPrompt) {
-                payloadMessages.push({ role: 'system', content: state.settings.systemPrompt });
-            }
+            if (state.settings.systemPrompt) payloadMessages.push({ role: 'system', content: state.settings.systemPrompt });
             payloadMessages.push(...chat.messages);
 
             try {
@@ -578,7 +567,7 @@
                         'Authorization': `Bearer ${state.settings.apiKey}`,
                         'Content-Type': 'application/json',
                         'HTTP-Referer': window.location.href, 
-                        'X-Title': 'Universal AI Chat'
+                        'X-Title': 'Vibrant AI Chat'
                     },
                     body: JSON.stringify({
                         model: state.settings.model,
@@ -587,10 +576,7 @@
                     })
                 });
 
-                if (!response.ok) {
-                    const errText = await response.text();
-                    throw new Error(`API Error ${response.status}: ${errText}`);
-                }
+                if (!response.ok) throw new Error(`API Error ${response.status}: ${await response.text()}`);
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder("utf-8");
@@ -613,28 +599,21 @@
                                 const data = JSON.parse(line.slice(6));
                                 const content = data.choices[0]?.delta?.content || "";
                                 aiText += content;
-                                
                                 aiBubbleWrapper.innerHTML = marked.parse(aiText);
                                 
                                 const scrollDistToBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-                                if (scrollDistToBottom < 300) {
-                                    scrollToBottom(false); 
-                                }
-                            } catch (e) {
-                                // Ignore partial JSON chunks
-                            }
+                                if (scrollDistToBottom < 300) scrollToBottom(false); 
+                            } catch (e) { /* Ignore partial JSON chunks */ }
                         }
                     }
                 }
 
-                aiBubbleWrapper.classList.remove('typing-indicator');
                 chat.messages.push({ role: 'assistant', content: aiText });
                 saveState();
 
             } catch (error) {
                 console.error("Streaming error:", error);
-                aiBubbleWrapper.classList.remove('typing-indicator');
-                aiBubbleWrapper.innerHTML = `<span class="text-red-500"><i class="fas fa-exclamation-triangle"></i> Error: ${escapeHTML(error.message)}</span>`;
+                aiBubbleWrapper.innerHTML = `<span class="text-red-500 font-semibold"><i class="fas fa-exclamation-triangle"></i> Error: ${escapeHTML(error.message)}</span>`;
             } finally {
                 isStreaming = false;
                 scrollToBottom(true);
@@ -643,16 +622,9 @@
 
         function escapeHTML(str) {
             return str.replace(/[&<>'"]/g, 
-                tag => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#39;',
-                    '"': '&quot;'
-                }[tag] || tag)
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
             );
         }
-
     </script>
 </body>
 </html>
