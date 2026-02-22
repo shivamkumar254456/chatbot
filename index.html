@@ -39,7 +39,6 @@
         .markdown-body p:last-child { margin-bottom: 0; }
         .markdown-body code { background-color: rgba(128, 128, 128, 0.2); padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
         
-        /* Adjusted pre tag for the copy-button wrapper */
         .markdown-body pre { background-color: transparent; color: #d4d4d4; padding: 1rem; overflow-x: auto; margin: 0; }
         .markdown-body pre code { background-color: transparent; padding: 0; color: inherit; font-size: 0.9em; }
         
@@ -123,8 +122,10 @@
                 </div>
             </header>
 
-            <div id="messages-container" class="flex-1 w-full max-w-3xl mx-auto p-4 md:p-6 pb-72 flex flex-col gap-6">
+            <div id="messages-container" class="w-full max-w-3xl mx-auto p-4 md:p-6 flex flex-col gap-6">
                 </div>
+
+            <div class="w-full h-[220px] flex-shrink-0"></div>
 
             <div class="fixed bottom-0 left-0 lg:left-72 right-0 bg-white dark:bg-gemini-dark pb-6 pt-4 px-4 z-20">
                 <div class="max-w-3xl mx-auto relative bg-gray-50 dark:bg-gemini-inputDark border border-gemini-borderLight dark:border-gemini-borderDark rounded-3xl shadow-sm focus-within:ring-1 focus-within:ring-gray-300 dark:focus-within:ring-gray-600 transition-shadow flex items-end px-4 py-2 gap-2">
@@ -324,11 +325,14 @@
             }
         }
 
+        // Updated scrollToBottom for perfect bottom scrolling
         function scrollToBottom(smooth = true) {
-            window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: smooth ? 'smooth' : 'auto'
-            });
+            setTimeout(() => {
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+            }, 50);
         }
 
         function openSettings() {
@@ -497,7 +501,7 @@
             }
 
             chat.messages.forEach(msg => appendMessageBubble(msg.role, msg.content));
-            setTimeout(() => scrollToBottom(true), 100);
+            scrollToBottom(true);
         }
 
         function appendMessageBubble(role, content, id = null) {
@@ -612,8 +616,8 @@
                                 
                                 aiBubbleWrapper.innerHTML = marked.parse(aiText);
                                 
-                                const scrollDistToBottom = document.body.scrollHeight - (window.scrollY + window.innerHeight);
-                                if (scrollDistToBottom < 150) {
+                                const scrollDistToBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+                                if (scrollDistToBottom < 300) {
                                     scrollToBottom(false); 
                                 }
                             } catch (e) {
