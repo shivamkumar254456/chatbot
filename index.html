@@ -13,12 +13,13 @@
                 extend: {
                     colors: {
                         gemini: {
-                            light: '#f0f4f9',
+                            light: '#ffffff',
                             dark: '#131314',
                             sidebarLight: '#f0f4f9',
                             sidebarDark: '#1e1f20',
                             borderLight: '#e3e3e3',
-                            borderDark: '#444746'
+                            borderDark: '#444746',
+                            inputDark: '#1e1f20'
                         }
                     }
                 }
@@ -122,23 +123,26 @@
                 </div>
             </header>
 
-            <div id="messages-container" class="flex-1 w-full max-w-3xl mx-auto p-4 md:p-6 pb-[32rem] flex flex-col gap-6">
+            <div id="messages-container" class="flex-1 w-full max-w-3xl mx-auto p-4 md:p-6 pb-40 flex flex-col gap-6">
                 </div>
 
-            <div class="fixed bottom-0 left-0 lg:left-72 right-0 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-gemini-dark dark:via-gemini-dark/95 pb-4 pt-12 px-4 z-20">
-                <div class="max-w-3xl mx-auto relative bg-white dark:bg-gemini-sidebarDark border border-gemini-borderLight dark:border-gemini-borderDark rounded-3xl shadow-lg focus-within:ring-1 focus-within:ring-gray-300 dark:focus-within:ring-gray-600 transition-shadow flex items-end px-4 py-2 gap-2">
+            <div class="fixed bottom-0 left-0 lg:left-72 right-0 bg-white dark:bg-gemini-dark pb-6 pt-4 px-4 z-20">
+                <div class="max-w-3xl mx-auto relative bg-gray-50 dark:bg-gemini-inputDark border border-gemini-borderLight dark:border-gemini-borderDark rounded-3xl shadow-sm focus-within:ring-1 focus-within:ring-gray-300 dark:focus-within:ring-gray-600 transition-shadow flex items-end px-4 py-2 gap-2">
+                    <button class="p-3 mb-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                        <i class="fas fa-plus"></i>
+                    </button>
                     <textarea 
                         id="user-input" 
                         rows="1" 
                         class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 text-base max-h-32 focus:outline-none placeholder-gray-500" 
-                        placeholder="Message AI..."
+                        placeholder="Ask Gemini..."
                         oninput="autoResize(this)"
                         onkeydown="handleEnter(event)"></textarea>
                     <button id="send-btn" onclick="sendMessage()" class="p-3 mb-1 rounded-full text-blue-500 hover:bg-blue-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
-                <div class="text-center text-xs text-gray-400 mt-2">
+                <div class="text-center text-xs text-gray-500 mt-3 font-medium">
                     AI can make mistakes. Verify important information.
                 </div>
             </div>
@@ -177,9 +181,6 @@
     </div>
 
     <script>
-        // ----------------------------------------------------
-        // CUSTOM MARKED.JS RENDERER (For Copy Code functionality)
-        // ----------------------------------------------------
         const renderer = new marked.Renderer();
         renderer.code = function(code, language) {
             const validLang = language || 'plaintext';
@@ -214,10 +215,6 @@
         }
 
 
-        // ----------------------------------------------------
-        // STATE & INITIALIZATION
-        // ----------------------------------------------------
-        
         let state = {
             settings: {
                 apiKey: '',
@@ -254,10 +251,6 @@
             });
         });
 
-        // ----------------------------------------------------
-        // LOCAL STORAGE MANAGEMENT
-        // ----------------------------------------------------
-
         function loadState() {
             try {
                 const saved = localStorage.getItem('universalAiChatState');
@@ -279,10 +272,6 @@
                 console.error("Failed to save state", e);
             }
         }
-
-        // ----------------------------------------------------
-        // UI & LAYOUT LOGIC
-        // ----------------------------------------------------
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -342,10 +331,6 @@
             });
         }
 
-        // ----------------------------------------------------
-        // SETTINGS MODAL LOGIC
-        // ----------------------------------------------------
-
         function openSettings() {
             const modal = document.getElementById('settings-modal');
             const modalInner = modal.querySelector('div');
@@ -379,10 +364,6 @@
             saveState();
             closeSettings();
         }
-
-        // ----------------------------------------------------
-        // CHAT MANAGEMENT & EXPORT LOGIC
-        // ----------------------------------------------------
 
         function generateId() {
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -468,10 +449,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // ----------------------------------------------------
-        // RENDER LOGIC
-        // ----------------------------------------------------
-
         function renderSidebar() {
             const list = document.getElementById('chat-list');
             list.innerHTML = '';
@@ -551,10 +528,6 @@
             container.appendChild(wrapper);
             return bubble;
         }
-
-        // ----------------------------------------------------
-        // AI & STREAMING LOGIC
-        // ----------------------------------------------------
 
         async function sendMessage() {
             const inputEl = document.getElementById('user-input');
@@ -664,7 +637,6 @@
             }
         }
 
-        // Utility: Escape HTML
         function escapeHTML(str) {
             return str.replace(/[&<>'"]/g, 
                 tag => ({
